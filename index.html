@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A4 轉 A6 小冊子拼版工具 (V62 簡潔版)</title>
+    <title>A4 轉 A6 小冊子拼版工具 (V65 裝訂指引優化版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -16,6 +16,7 @@
         .badge-content { @apply bg-white text-slate-700 border-slate-300; }
         .badge-blank { @apply bg-red-50 text-red-400 border-red-200 border-dashed; }
         .loading-overlay { @apply absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-50 backdrop-blur-sm; }
+        .step-card { @apply bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600; }
     </style>
 </head>
 <body class="bg-white min-h-screen text-slate-800">
@@ -26,6 +27,7 @@
                 <i data-lucide="book-open" class="text-blue-600 w-6 h-6"></i>
                 <h1 class="text-xl font-bold text-slate-800">A4 轉 A6 小冊子拼版工具</h1>
             </div>
+            <div class="text-xs text-slate-500 font-mono hidden sm:block">V65: Binding Instruction</div>
         </div>
     </nav>
 
@@ -133,7 +135,7 @@
                     </div>
                 </div>
 
-                <!-- 3. Generate -->
+                <!-- 3. Generate & Download -->
                 <div id="action-area" class="hidden border-t border-slate-100 pt-4">
                     <div id="processing-ui" class="hidden mb-3">
                         <div class="w-full bg-slate-200 rounded-full h-1.5 mb-2 overflow-hidden">
@@ -150,6 +152,44 @@
                     <div id="error-box" class="hidden mt-2 p-2 bg-red-50 text-red-600 text-xs rounded border border-red-100 break-words"></div>
                 </div>
 
+                <!-- INSTRUCTIONS (Hidden by default) -->
+                <div id="post-download-instructions" class="hidden border-t border-slate-200 pt-4 mt-2 animate-fade-in">
+                    <h3 class="font-bold text-slate-700 text-sm mb-3 flex items-center gap-2">
+                        <i data-lucide="printer" class="w-4 h-4 text-blue-600"></i>
+                        製作完成！後續步驟：
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="step-card flex gap-3 items-start">
+                            <div class="bg-slate-200 text-slate-600 w-5 h-5 rounded-full flex items-center justify-center shrink-0 font-bold text-[10px] mt-0.5">3</div>
+                            <div>
+                                <p class="font-bold text-slate-700 mb-1">列印設定</p>
+                                <p>請使用 A4 紙張進行<strong>雙面列印</strong>，翻頁方式選擇<strong>「長邊翻頁 (Flip on Long Edge)」</strong>。</p>
+                            </div>
+                        </div>
+                        <div class="step-card flex gap-3 items-start">
+                            <div class="bg-slate-200 text-slate-600 w-5 h-5 rounded-full flex items-center justify-center shrink-0 font-bold text-[10px] mt-0.5">4</div>
+                            <div>
+                                <p class="font-bold text-slate-700 mb-1">裁切</p>
+                                <p>沿著頁面中間的虛線，將整疊紙<strong>橫向裁切</strong>成上下兩半。</p>
+                            </div>
+                        </div>
+                        <div class="step-card flex gap-3 items-start">
+                            <div class="bg-slate-200 text-slate-600 w-5 h-5 rounded-full flex items-center justify-center shrink-0 font-bold text-[10px] mt-0.5">5</div>
+                            <div>
+                                <p class="font-bold text-slate-700 mb-1">疊放順序</p>
+                                <p>將裁切好的<strong>「上半疊」</strong>（包含封面）直接疊放在<strong>「下半疊」</strong>的<span class="text-red-500 font-bold">上方</span>。</p>
+                            </div>
+                        </div>
+                         <div class="step-card flex gap-3 items-start">
+                            <div class="bg-slate-200 text-slate-600 w-5 h-5 rounded-full flex items-center justify-center shrink-0 font-bold text-[10px] mt-0.5">6</div>
+                            <div>
+                                <p class="font-bold text-slate-700 mb-1">對折與裝訂</p>
+                                <p>將整疊紙張<strong>先沿著中央虛線對折</strong>，最後使用<strong>訂書機</strong>（建議可旋轉式）或<strong>長尾夾</strong>固定於中線處，即完成 A6 小冊子。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Footer Info -->
                 <div class="border-t border-slate-200 pt-4 mt-4">
                     <p class="text-[10px] text-slate-400 leading-relaxed flex gap-1">
@@ -224,6 +264,7 @@
         const statusText = document.getElementById('status-text');
         const errorBox = document.getElementById('error-box');
         const previewLoading = document.getElementById('preview-loading');
+        const instructionsPanel = document.getElementById('post-download-instructions');
         
         const gutterSlider = document.getElementById('gutter-slider');
         const splitRadios = document.querySelectorAll('input[name="splitMode"]');
@@ -257,6 +298,7 @@
         const resetUI = () => {
             if (!currentFileBuffer) return;
             downloadLink.classList.add('hidden');
+            instructionsPanel.classList.add('hidden'); // Hide instructions on reset
             generateBtn.classList.remove('hidden');
             generateBtn.innerHTML = '<i data-lucide="refresh-cw"></i> 更新設定並重新製作';
             processingUi.classList.add('hidden');
@@ -275,6 +317,7 @@
             fileLabel.textContent = file.name;
             
             downloadLink.classList.add('hidden');
+            instructionsPanel.classList.add('hidden');
             generateBtn.classList.remove('hidden');
             generateBtn.innerHTML = '<i data-lucide="play"></i> 開始製作';
             lucide.createIcons();
@@ -537,8 +580,11 @@
                 const url = URL.createObjectURL(blob);
                 
                 downloadLink.href = url;
-                downloadLink.download = `A4toA6_V62_${currentFileName}`;
+                downloadLink.download = `A4toA6_V65_${currentFileName}`;
                 downloadLink.classList.remove('hidden');
+                // Show Instructions
+                instructionsPanel.classList.remove('hidden');
+                
                 processingUi.classList.add('hidden');
 
             } catch (e) {
@@ -552,3 +598,4 @@
     </script>
 </body>
 </html>
+
