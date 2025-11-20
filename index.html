@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A4 轉 A6 小冊子拼版工具 (V55 雙重模式版)</title>
+    <title>A4 轉 A6 小冊子拼版工具 (V58 虛線開關版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -26,7 +26,7 @@
                 <i data-lucide="book-open" class="text-blue-600 w-6 h-6"></i>
                 <h1 class="text-xl font-bold text-slate-800">A4 轉 A6 小冊子拼版工具</h1>
             </div>
-            <div class="text-xs text-slate-500 font-mono hidden sm:block">V55: Split & Binding Decoupled</div>
+            <div class="text-xs text-slate-500 font-mono hidden sm:block">V58: Cut Lines Toggle</div>
         </div>
     </nav>
 
@@ -59,7 +59,7 @@
                     </h2>
 
                     <!-- 2a. Source Split Mode -->
-                    <div class="bg-orange-50 p-4 rounded border border-orange-100">
+                    <div class="bg-orange-50 p-4 rounded border border-orange-100 transition-colors hover:bg-orange-100/50">
                         <label class="block text-sm font-bold text-orange-900 mb-2 flex items-center gap-2">
                             <i data-lucide="scissors" class="w-4 h-4"></i> 來源跨頁拆分 (Split)
                         </label>
@@ -69,21 +69,21 @@
                                 <input type="radio" name="splitMode" value="left-first" checked class="accent-orange-600">
                                 <div class="ml-2">
                                     <span class="text-xs font-bold text-slate-700">左頁優先 (Left First)</span>
-                                    <span class="text-[10px] text-slate-500 block">第1頁取左半，第2頁取右半...</span>
+                                    <span class="text-[10px] text-slate-500 block">第1頁取左半，第2頁取右半... (封面在左)</span>
                                 </div>
                             </label>
                             <label class="flex items-center p-2 bg-white border border-orange-200 rounded cursor-pointer hover:bg-orange-50">
                                 <input type="radio" name="splitMode" value="right-first" class="accent-orange-600">
                                 <div class="ml-2">
                                     <span class="text-xs font-bold text-slate-700">右頁優先 (Right First)</span>
-                                    <span class="text-[10px] text-slate-500 block">第1頁取右半，第2頁取左半...</span>
+                                    <span class="text-[10px] text-slate-500 block">第1頁取右半，第2頁取左半... (封面在右)</span>
                                 </div>
                             </label>
                         </div>
                     </div>
 
                     <!-- 2b. Imposition Binding Mode -->
-                    <div class="bg-indigo-50 p-4 rounded border border-indigo-100">
+                    <div class="bg-indigo-50 p-4 rounded border border-indigo-100 transition-colors hover:bg-indigo-100/50">
                         <label class="block text-sm font-bold text-indigo-900 mb-2 flex items-center gap-2">
                             <i data-lucide="book" class="w-4 h-4"></i> 拼版裝訂方向 (Binding)
                         </label>
@@ -105,6 +105,23 @@
                             </label>
                         </div>
                     </div>
+
+                    <!-- 2c. Cut Lines Toggle (New) -->
+                    <div class="bg-slate-50 p-4 rounded border border-slate-200 transition-colors hover:bg-slate-100/50">
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                    <i data-lucide="scissors-line-dashed" class="w-4 h-4 text-slate-500"></i>
+                                    繪製裁切虛線
+                                </span>
+                                <span class="text-[10px] text-slate-500 mt-1">在頁面中央繪製十字參考線</span>
+                            </div>
+                            <div class="relative flex items-center">
+                                <input type="checkbox" id="cut-lines-toggle" checked class="peer sr-only">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                            </div>
+                        </label>
+                    </div>
                     
                     <!-- Hidden Settings -->
                     <div class="hidden">
@@ -124,7 +141,7 @@
                         <p id="status-text" class="text-xs text-slate-500 text-center">準備中...</p>
                     </div>
                     <button id="generate-btn" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-slate-200">
-                        <i data-lucide="play"></i> 開始製作 (V55)
+                        <i data-lucide="play"></i> 開始製作
                     </button>
                     <a id="download-link" class="hidden w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-green-100">
                         <i data-lucide="download"></i> 下載 PDF
@@ -202,6 +219,7 @@
         const gutterSlider = document.getElementById('gutter-slider');
         const splitRadios = document.querySelectorAll('input[name="splitMode"]');
         const bindingRadios = document.querySelectorAll('input[name="bindingMode"]');
+        const cutLinesToggle = document.getElementById('cut-lines-toggle');
 
         // State
         let currentFileBuffer = null;
@@ -226,12 +244,21 @@
             handleFile(e.dataTransfer.files[0]); 
         });
 
-        // Binding change triggers map update & preview update
-        bindingRadios.forEach(r => r.addEventListener('change', () => {
-            if(currentFileBuffer) {
-                calculateMap();
-            }
-        }));
+        // --- UI Reset Logic ---
+        const resetUI = () => {
+            if (!currentFileBuffer) return;
+            downloadLink.classList.add('hidden');
+            generateBtn.classList.remove('hidden');
+            generateBtn.innerHTML = '<i data-lucide="refresh-cw"></i> 更新設定並重新製作';
+            processingUi.classList.add('hidden');
+            statusText.textContent = '設定已變更，請重新製作';
+            lucide.createIcons();
+            calculateMap();
+        };
+
+        splitRadios.forEach(r => r.addEventListener('change', resetUI));
+        bindingRadios.forEach(r => r.addEventListener('change', resetUI));
+        cutLinesToggle.addEventListener('change', resetUI); // Toggle also triggers reset
 
         async function handleFile(file) {
             if (!file || file.type !== 'application/pdf') return alert('請上傳 PDF');
@@ -240,6 +267,9 @@
             
             downloadLink.classList.add('hidden');
             generateBtn.classList.remove('hidden');
+            generateBtn.innerHTML = '<i data-lucide="play"></i> 開始製作';
+            lucide.createIcons();
+            
             processingUi.classList.add('hidden');
             errorBox.classList.add('hidden');
             previewLoading.classList.remove('hidden');
@@ -249,7 +279,7 @@
                 const pdf = await PDFDocument.load(currentFileBuffer, { ignoreEncryption: true });
                 originalPageCount = pdf.getPageCount();
                 
-                calculateMap(); // Initial calc
+                calculateMap(); 
                 settingsPanel.classList.remove('hidden');
                 actionArea.classList.remove('hidden');
             } catch (e) {
@@ -269,7 +299,6 @@
             const sheetsNeeded = Math.ceil(totalLeaves / 2);
             const splitPoint = sheetsNeeded; 
             
-            // Get Binding Mode
             const bindingMode = document.querySelector('input[name="bindingMode"]:checked').value;
             const isLeftBinding = (bindingMode === 'left-binding');
 
@@ -281,28 +310,16 @@
 
                 const getLeaf = (k) => {
                     if (k >= totalLeaves) return null; 
-                    // Leaf k contains 4 pages.
-                    // Left Binding: [Last, 1, 2, SecondLast]
-                    // Right Binding: [1, Last, SecondLast, 2]
                     
-                    const p1 = 1 + (2 * k); // First page of this spread
-                    const p4 = bookletPageCount - (2 * k); // Last page of this spread
+                    const p1 = 1 + (2 * k); 
+                    const p4 = bookletPageCount - (2 * k); 
                     const p2 = p1 + 1;
                     const p3 = p4 - 1;
 
                     if (isLeftBinding) {
-                        return {
-                            f: [p4, p1], // Front: Left=BackPage, Right=FrontPage
-                            b: [p2, p3]  // Back:  Left=InsideLeft, Right=InsideRight
-                        };
+                        return { f: [p4, p1], b: [p2, p3] };
                     } else {
-                        // Right Binding (Manga style)
-                        // Front: Left=FrontPage, Right=BackPage
-                        // Back:  Left=InsideRight, Right=InsideLeft
-                        return {
-                            f: [p1, p4], 
-                            b: [p3, p2]
-                        };
+                        return { f: [p1, p4], b: [p3, p2] };
                     }
                 };
 
@@ -329,42 +346,8 @@
                 return `<span class="page-badge badge-content">${p}</span>`;
             };
 
-            // Headers now reflect Left/Right clearly
-            impositionMap.forEach(row => {
-                const isBack = row.side === 'Back';
-                html += `
-                <tr class="${isBack ? 'bg-slate-50 border-b-2 border-slate-200' : 'bg-white'}">
-                    <td class="text-center font-bold text-slate-700 text-xs py-3">${row.sheet}</td>
-                    <td class="text-center font-medium text-xs uppercase ${isBack ? 'text-slate-400' : 'text-blue-600'}">${row.side}</td>
-                    
-                    <!-- Top Stack (A6) -->
-                    <td class="border-r border-slate-100 text-center py-1">
-                        <div class="flex justify-center items-center gap-1">
-                           <div class="flex flex-col items-center"><span class="text-[9px] text-slate-400 mb-0.5">上-左</span>${badge(row.top[0], false)}</div>
-                           <div class="w-px h-6 bg-slate-200 mx-1"></div>
-                           <div class="flex flex-col items-center"><span class="text-[9px] text-slate-400 mb-0.5">上-右</span>${badge(row.top[1], false)}</div>
-                        </div>
-                        ${!row.botIsDiscard ? `
-                        <div class="w-full h-px bg-slate-100 my-1"></div>
-                        <div class="flex justify-center items-center gap-1">
-                           <div class="flex flex-col items-center"><span class="text-[9px] text-slate-400 mb-0.5">下-左</span>${badge(row.bottom[0], row.botIsDiscard)}</div>
-                           <div class="w-px h-6 bg-slate-200 mx-1"></div>
-                           <div class="flex flex-col items-center"><span class="text-[9px] text-slate-400 mb-0.5">下-右</span>${badge(row.bottom[1], row.botIsDiscard)}</div>
-                        </div>` : '<div class="text-xs text-slate-300 py-2">下半部無內容</div>'}
-                    </td>
-                    
-                    <!-- Spacer for clearer UI, merge columns -->
-                    <td class="hidden"></td> 
-                </tr>`;
-            });
-            
-            // Simplify table structure for better view
             const simpleHtml = impositionMap.map(row => {
                 const isBack = row.side === 'Back';
-                const botContent = row.botIsDiscard ? 
-                    `<span class="text-xs text-gray-300 italic">Blank</span>` : 
-                    `<div class="flex gap-1 justify-center">${badge(row.bottom[0], false)} ${badge(row.bottom[1], false)}</div>`;
-
                 return `
                 <tr class="${isBack ? 'bg-slate-50 border-b-2 border-slate-200' : 'bg-white'}">
                     <td class="text-center font-bold text-slate-700">${row.sheet}</td>
@@ -401,8 +384,7 @@
             previewTbody.innerHTML = simpleHtml;
         }
 
-        // --- Page Normalizer V55 ---
-        async function createStandardizedA6Page(sourceBuffer, pageIndex, rotateDeg, splitMode) {
+        async function createStandardizedA6Page(srcDoc, pageIndex, rotateDeg, splitMode) {
             const createBlank = async () => {
                 const d = await PDFDocument.create();
                 d.addPage([A6_W, A6_H]);
@@ -410,11 +392,9 @@
             };
 
             try {
-                const srcDoc = await PDFDocument.load(sourceBuffer, { ignoreEncryption: true });
                 if (pageIndex < 0 || pageIndex >= srcDoc.getPageCount()) return await createBlank();
 
                 const page = srcDoc.getPage(pageIndex);
-                
                 try { page.drawRectangle({ x: 0, y: 0, width: 0, height: 0, opacity: 0 }); } catch(e) {}
 
                 const { width, height } = page.getSize(); 
@@ -426,22 +406,17 @@
                 try { [embeddedPage] = await standardDoc.embedPdf(srcDoc, [pageIndex]); } 
                 catch (embedErr) { return await createBlank(); }
                 
-                // 5. V55 Split Logic
                 let srcX = 0; 
                 let srcUseW = width; 
 
-                if (width > height) { // Landscape
+                if (width > height) { 
                     srcUseW = halfWidth;
                     const isEvenIndex = (pageIndex % 2 === 0); 
                     let useLeft = false;
 
                     if (splitMode === 'left-first') {
-                        // 0, 2, 4 -> Left
-                        // 1, 3, 5 -> Right
                         useLeft = isEvenIndex;
                     } else {
-                        // 0, 2, 4 -> Right
-                        // 1, 3, 5 -> Left
                         useLeft = !isEvenIndex;
                     }
                     
@@ -493,20 +468,22 @@
             const gutterMm = parseInt(gutterSlider.value);
             const gutterPt = gutterMm * 2.83465;
             const rotateDeg = parseInt(document.querySelector('input[name="rotate"]:checked').value);
-            
-            // Get Split Mode for Page Normalizing
             const splitMode = document.querySelector('input[name="splitMode"]:checked').value;
+            const showCutLines = cutLinesToggle.checked;
 
             try {
+                statusText.textContent = '載入原始 PDF...';
+                const srcDoc = await PDFDocument.load(currentFileBuffer, { ignoreEncryption: true });
+                
                 const standardizedPages = new Array(bookletPageCount);
                 
                 for (let i = 0; i < bookletPageCount; i++) {
                     const pct = Math.round((i / bookletPageCount) * 60);
                     progressBar.style.width = `${pct}%`;
-                    statusText.textContent = `頁面重整與裁切 (${splitMode}): ${i + 1} / ${bookletPageCount}`;
+                    const splitText = splitMode === 'left-first' ? '左頁優先' : '右頁優先';
+                    statusText.textContent = `頁面處理 (${splitText}): ${i + 1} / ${bookletPageCount}`;
                     
-                    if (!currentFileBuffer) throw new Error("Buffer lost");
-                    standardizedPages[i] = await createStandardizedA6Page(currentFileBuffer, i, rotateDeg, splitMode);
+                    standardizedPages[i] = await createStandardizedA6Page(srcDoc, i, rotateDeg, splitMode);
                 }
 
                 statusText.textContent = '拼版組裝中...';
@@ -541,8 +518,11 @@
                         await pasteA6(page, standardizedPages[entry.bottom[1]-1], A6_W, botY);
                     }
                     
-                    page.drawLine({ start: {x:0, y:midY}, end: {x:A4_W, y:midY}, thickness: 0.5, color: rgb(0.8,0.8,0.8), dashArray: [5,5] });
-                    page.drawLine({ start: {x:A6_W, y:0}, end: {x:A6_W, y:A4_H}, thickness: 0.5, color: rgb(0.8,0.8,0.8), dashArray: [5,5] });
+                    // Optional Cut Lines
+                    if (showCutLines) {
+                        page.drawLine({ start: {x:0, y:midY}, end: {x:A4_W, y:midY}, thickness: 0.5, color: rgb(0.8,0.8,0.8), dashArray: [5,5] });
+                        page.drawLine({ start: {x:A6_W, y:0}, end: {x:A6_W, y:A4_H}, thickness: 0.5, color: rgb(0.8,0.8,0.8), dashArray: [5,5] });
+                    }
                 }
 
                 statusText.textContent = '完成！';
@@ -551,7 +531,7 @@
                 const url = URL.createObjectURL(blob);
                 
                 downloadLink.href = url;
-                downloadLink.download = `A4toA6_V55_${currentFileName}`;
+                downloadLink.download = `A4toA6_V58_${currentFileName}`;
                 downloadLink.classList.remove('hidden');
                 processingUi.classList.add('hidden');
 
@@ -566,4 +546,3 @@
     </script>
 </body>
 </html>
-
