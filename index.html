@@ -1,10 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" prefix="og: https://ogp.me/ns#">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A4轉A6小冊子拼版工具 (影像重製版)</title>
+    
+    <!-- =========================================================================
+       防誤判與身分驗證區塊 (Anti-Phishing & SEO Tags)
+    ========================================================================== -->
+    <title>A4轉A6小冊子拼版工具 (影像重製版) | 純前端離線工具</title>
+    
+    <meta name="description" content="這是一個純前端 (Client-side) 的 PDF 小冊子拼版工具，專為自製 Zine 或小誌設計。採用「影像重製模式」，確保 100% 容錯。所有運算皆在您的瀏覽器內完成，絕不上傳至任何伺服器。">
+    <meta name="keywords" content="PDF拼版, 小冊子製作, A4轉A6, 切分堆疊法, 純前端, 離線工具, 無後端, 隱私保護, Zine Maker, Imposition">
+    <meta name="author" content="MingHan Bai">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph 標籤 -->
+    <meta property="og:title" content="A4轉A6小冊子拼版工具 (純前端離線版)">
+    <meta property="og:description" content="安全、隱私優先的 PDF 工具。採用影像重製技術，資料只在本地運算，不傳輸至雲端。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://minghanbai.github.io/BookletConverter/">
+    <meta property="og:site_name" content="MingHan Bai's Tools">
+
+    <!-- 結構化資料 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "A4轉A6小冊子拼版工具",
+      "description": "純前端 PDF 處理工具，協助將文件重組為 A6 小冊子格式。資料僅在本地瀏覽器處理，不進行網路傳輸。",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "TWD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "MingHan Bai",
+        "url": "https://minghanbai.github.io/"
+      },
+      "featureList": "純前端運算, 離線可用, 資料不上傳, 影像重製模式, 切分堆疊法"
+    }
+    </script>
+
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -726,7 +766,7 @@
                                     </a>
                                 </div>
 
-                                {/* Instructions Diagram - Updated to 2x2 Grid with Updated Step 2 */}
+                                {/* Instructions Diagram */}
                                 <div className="border-t border-green-200 pt-4 mt-4">
                                     <h4 className="font-bold text-gray-700 mb-3 flex items-center gap-2">
                                         <IconScissors className="w-4 h-4" />
@@ -745,21 +785,18 @@
                                             <p className="text-sm text-gray-500">使用 A4 紙進行雙面列印，並選擇長邊翻頁設定。</p>
                                         </div>
 
-                                        {/* Step 2 - Updated Visual */}
+                                        {/* Step 2 */}
                                         <div className="bg-white p-4 rounded border border-gray-200">
                                             <strong className="block text-gray-800 mb-2 text-sm">2. 水平裁切</strong>
                                             <div className="relative h-24 bg-gray-50 border border-gray-100 mb-2 flex items-center justify-center px-8 py-2">
-                                                {/* Paper Sheet - Made taller and narrower to resemble A4 */}
                                                 <div className="w-24 h-full bg-white border border-gray-300 flex flex-col relative shadow-sm">
                                                     <div className="flex-1 flex items-center justify-center text-[10px] text-gray-400">
                                                         上半部
                                                     </div>
-                                                    {/* Cut Line */}
                                                     <div className="w-full border-b border-dashed border-red-400"></div>
                                                     <div className="flex-1 flex items-center justify-center text-[10px] text-gray-400">
                                                         下半部
                                                     </div>
-                                                    {/* Scissors - Positioned outside */}
                                                     <div className="absolute -right-6 top-1/2 -translate-y-1/2 text-red-500">
                                                         <IconScissors className="w-4 h-4" />
                                                     </div>
@@ -801,8 +838,14 @@
                         )}
                     </div>
 
-                    <footer className="mt-8 text-gray-400 text-sm">
-                        所有運算在本地完成，您的檔案不會上傳至網路。
+                    {/* Footer - Added Privacy & Author Links */}
+                    <footer className="max-w-4xl mx-auto mt-8 text-center text-gray-500 text-sm">
+                        <p>本工具所有資料運算皆於您的裝置本機端 (Client-side) 完成，絕不會上傳至任何伺服器。</p>
+                        <div className="mt-2 flex justify-center gap-4">
+                            <a href="privacy.html" className="text-blue-600 hover:text-blue-800 underline">隱私權政策 & 免責聲明</a>
+                            <span className="text-gray-300">|</span>
+                            <a href="https://minghanbai.github.io/" target="_blank" className="text-blue-600 hover:text-blue-800 underline">作者首頁</a>
+                        </div>
                     </footer>
                 </div>
             );
