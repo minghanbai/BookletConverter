@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隱私權政策 & 免責聲明 - A4轉A6小冊子拼版工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; color: #334155; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div class="flex-grow py-12 px-4">
+        <div class="max-w-3xl mx-auto space-y-8">
+            
+            <!-- Header -->
+            <header class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">隱私權政策 & 免責聲明</h1>
+                <p class="text-slate-500">A4轉A6小冊子拼版工具 (Booklet Converter)</p>
+            </header>
+
+            <!-- Core Statement -->
+            <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-green-500">
+                <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    核心承諾：檔案不離手 (Client-Side Only)
+                </h2>
+                <div class="space-y-4 text-slate-600 leading-relaxed">
+                    <p>
+                        我們深知您的 PDF 文件可能包含敏感資訊（如個人創作、機密報告等）。因此，本工具採用<strong>純前端技術 (Pure Frontend)</strong> 開發。
+                    </p>
+                    <p>
+                        這意味著：<strong>您上傳的所有 PDF 檔案、以及重製後的拼版檔案，所有的運算過程完全在您的瀏覽器（您的電腦記憶體）中透過 JavaScript (PDF.js / PDF-Lib) 進行。</strong>
+                    </p>
+                    <p class="font-bold text-slate-800">
+                        我們沒有後端資料庫，也不會將您的任何檔案上傳至雲端伺服器。
+                    </p>
+                </div>
+            </section>
+
+            <!-- Detailed Policy -->
+            <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4">資料處理詳情</h3>
+                <ul class="space-y-4 text-slate-600 text-sm list-disc pl-5">
+                    <li>
+                        <strong>PDF 運算機制：</strong> 
+                        本工具使用開源的 <code>PDF.js</code> 進行讀取，並使用 <code>pdf-lib</code> 或 <code>canvas</code> 進行影像重製 (Rasterization)。這些操作僅在您開啟網頁的當下於記憶體中執行，關閉網頁後所有資料即消失。
+                    </li>
+                    <li>
+                        <strong>外部服務：</strong>
+                        本網站託管於 GitHub Pages。GitHub 可能會收集標準的伺服器存取日誌（如 IP 位址、瀏覽器版本），這屬於 GitHub 的服務條款範疇，與本工具的資料處理無關。此外，我們使用了 Google Fonts 與 CDN 服務來載入字型與程式庫。
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Disclaimer -->
+            <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-orange-400">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-orange-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                    關於資安誤判與免責聲明
+                </h3>
+                <div class="space-y-4 text-slate-600 text-sm leading-relaxed">
+                    <p>
+                        由於本工具涉及檔案處理 (PDF Processing)，部分資安軟體或瀏覽器保護機制（如 Google Safe Browsing）可能會將含有大量 JavaScript 運算的靜態網頁誤判為風險網站。
+                    </p>
+                    <p>
+                        若您遇到此類警告，請不用驚慌。這是自動掃描程式的誤報。您可以參考 <a href="https://github.com/minghanbai/BookletConverter" target="_blank" class="text-blue-600 hover:underline">GitHub 原始碼</a> 來驗證本工具的安全性。
+                    </p>
+                    <p class="text-xs text-slate-400 mt-4 border-t pt-4">
+                        免責聲明：本工具為免費開源軟體，僅供個人使用。開發者不對因使用本工具而產生的任何直接或間接損失負責（例如：列印錯誤、檔案損毀）。正式列印前，請務必先進行測試列印。
+                    </p>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div class="flex justify-center gap-6 pt-8">
+                <a href="index.html" class="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition shadow-lg flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                    </svg>
+                    返回工具頁面
+                </a>
+                <a href="https://minghanbai.github.io/" target="_blank" class="px-6 py-3 bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                    作者首頁
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center">
+        <p class="text-slate-400 text-xs">
+            &copy; <script>document.write(new Date().getFullYear())</script> MingHan Bai. Open Source Project.
+        </p>
+    </footer>
+
+</body>
+</html>
